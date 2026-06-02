@@ -1,56 +1,58 @@
 # PyroShop — Práctica 2 (FastAPI + Svelte 5)
+Repositorio: https://github.com/nekiiiiis/new-backend-pyro-shop
 
-> Programación Web II — curso 2025/2026
+> Programación Web II — curso 2025/2026.
 >
-> Reemplazo del backend Node.js/Express/MongoDB de la práctica 1 por un
-> **backend Python** desarrollado con **FastAPI**, arquitectura limpia
-> en capas, persistencia real con **SQLAlchemy + SQLite**, validación
-> estricta con **Pydantic** y autenticación **JWT**.
-> El frontend Svelte 5 sigue funcionando sin cambios porque se respeta
-> el contrato JSON original.
+> El backend Node.js/Express/MongoDB de la práctica 1 se sustituye por
+> un **backend Python** desarrollado con **FastAPI**, una arquitectura
+> en capas, persistencia con **SQLAlchemy + SQLite**, validación
+> estricta con **Pydantic** y autenticación mediante **JWT**.
+> El frontend Svelte 5 se reutiliza sin modificaciones gracias a la
+> preservación del contrato JSON original.
 
 ---
 
-## 🚀 Cómo desplegar / ejecutar 
+## Despliegue y ejecución
 
 ### Requisitos previos
 
-- **Python 3.10+** (probado en 3.10.12)
-- **Node.js 18+** y **npm**
-- `python3-venv` (en Debian/Ubuntu: `sudo apt install python3-venv`)
-  o `virtualenv` (`pip3 install --user virtualenv`)
+- **Python 3.10 o superior** (probado en 3.10.12).
+- **Node.js 18 o superior** y **npm**.
+- `python3-venv` (en distribuciones basadas en Debian/Ubuntu se
+  instala con `sudo apt install python3-venv`) o, en su defecto,
+  `virtualenv` (`pip3 install --user virtualenv`).
 
-### 1️⃣ Backend (terminal 1)
+### 1. Backend (terminal 1)
 
 ```bash
 cd backend
 
-# Crear y activar entorno virtual
-python3 -m venv .venv            # o:  virtualenv .venv
+# Crear y activar el entorno virtual
+python3 -m venv .venv            # alternativa: virtualenv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # Instalar dependencias
 pip install -r requirements.txt
 
-# Variables de entorno (mínimo: JWT_SECRET)
+# Configurar variables de entorno (como mínimo: JWT_SECRET)
 cp .env.example .env
 
-# Arrancar el servidor (con autoreload)
+# Arrancar el servidor (modo desarrollo con autoreload)
 python run.py
-# Alternativa equivalente:
+# Equivalente:
 # uvicorn app.main:app --reload --host 0.0.0.0 --port 3000
 ```
 
-El servidor crea automáticamente las tablas SQLite en
-`backend/data/pyroshop.db` y siembra datos demo si la base de datos
-está vacía.
+Durante el primer arranque, el servidor crea automáticamente las
+tablas SQLite en `backend/data/pyroshop.db` y carga los datos
+iniciales de demostración si la base de datos se encuentra vacía.
 
-**Backend listo en:** http://localhost:3000
+**Backend disponible en:** http://localhost:3000
 
-- Swagger UI → http://localhost:3000/docs
-- Healthcheck → http://localhost:3000/health
+- Documentación interactiva (Swagger UI): http://localhost:3000/docs
+- Endpoint de comprobación de estado: http://localhost:3000/health
 
-### 2️⃣ Frontend (terminal 2)
+### 2. Frontend (terminal 2)
 
 ```bash
 cd frontend
@@ -58,42 +60,45 @@ npm install
 npm run dev
 ```
 
-**Frontend listo en:** http://localhost:5173 (Vite proxea `/auth`,
-`/productos` y `/api` al backend, sin problemas de CORS).
+**Frontend disponible en:** http://localhost:5173. Vite redirige
+mediante proxy las rutas `/auth`, `/productos` y `/api` al backend,
+por lo que no se requiere configuración adicional de CORS en
+desarrollo.
 
-### 3️⃣ Credenciales de prueba (usuarios semilla)
+### 3. Credenciales de prueba (usuarios precargados)
 
 | Usuario | Contraseña | Rol |
 |---------|------------|-----|
 | `admin` | `123456` | `admin` |
 | `usuarioPrueba` | `123456` | `user` |
 
-> Los datos se cargan automáticamente al primer arranque mientras
-> `SEED_ON_STARTUP=true` (valor por defecto en `.env.example`).
+Estos usuarios se crean automáticamente en el primer arranque siempre
+que la variable `SEED_ON_STARTUP` esté establecida en `true` (valor
+predeterminado en `.env.example`).
 
-### 4️⃣ Verificación rápida con `curl` (opcional)
+### 4. Verificación rápida mediante `curl` (opcional)
 
 ```bash
-# Healthcheck
+# Comprobación de estado
 curl http://localhost:3000/health
 
-# Login admin → JWT
+# Inicio de sesión como administrador (devuelve un token JWT)
 curl -X POST http://localhost:3000/auth/login \
      -H 'Content-Type: application/json' \
      -d '{"username":"admin","password":"123456"}'
 
-# Listar productos (público)
+# Listado público de productos
 curl http://localhost:3000/productos
 ```
 
-### 📂 Documentos clave de la entrega
+### Documentos clave de la entrega
 
 | Archivo | Contenido |
 |---------|-----------|
-| [`README.md`](./README.md) | Este documento (despliegue + descripción técnica) |
-| [`backend/AI_USAGE.md`](./backend/AI_USAGE.md) | Memoria del uso de IA (prompts, iteraciones y análisis crítico) |
-| [`backend/.env.example`](./backend/.env.example) | Plantilla de variables de entorno |
-| [`backend/requirements.txt`](./backend/requirements.txt) | Dependencias Python |
+| [`README.md`](./README.md) | Documento principal: despliegue y descripción técnica. |
+| [`backend/AI_USAGE.md`](./backend/AI_USAGE.md) | Memoria del uso de IA: prompts, iteraciones y análisis crítico. |
+| [`backend/.env.example`](./backend/.env.example) | Plantilla de variables de entorno. |
+| [`backend/requirements.txt`](./backend/requirements.txt) | Dependencias del backend Python. |
 
 ---
 
@@ -104,10 +109,10 @@ curl http://localhost:3000/productos
 3. [Arquitectura y estructura del proyecto](#arquitectura-y-estructura-del-proyecto)
 4. [API REST](#api-rest)
 5. [Modelo de datos](#modelo-de-datos)
-6. [Validación y errores](#validación-y-errores)
+6. [Validación y manejo de errores](#validación-y-manejo-de-errores)
 7. [Seguridad](#seguridad)
 8. [Uso de Inteligencia Artificial](#uso-de-inteligencia-artificial)
-9. [Frontend (resumen rápido)](#frontend-resumen-rápido)
+9. [Frontend](#frontend)
 10. [Endpoints utilizados por el frontend](#endpoints-utilizados-por-el-frontend)
 
 ---
@@ -116,18 +121,19 @@ curl http://localhost:3000/productos
 
 | Aspecto | Práctica 1 (Node) | Práctica 2 (Python) |
 |---------|-------------------|---------------------|
-| Lenguaje | Node.js (CommonJS) | Python 3.10+ |
+| Lenguaje | Node.js (CommonJS) | Python 3.10 o superior |
 | Framework | Express | FastAPI |
-| ORM / BD | Mongoose + MongoDB | SQLAlchemy 2.0 + SQLite |
-| Validación | Manual en cada ruta | Pydantic v2 (422 estructurado) |
-| Manejo de errores | `try/catch` por ruta | Excepciones de dominio + handlers globales |
-| Auth | `jsonwebtoken` + bcrypt | PyJWT + bcrypt |
-| Arquitectura | Routes + Models | Routers / Services / Repositories / Models |
-| Tiempo real | Socket.IO (chat) | *Fuera del alcance de la práctica 2* |
+| ORM / Base de datos | Mongoose + MongoDB | SQLAlchemy 2.0 + SQLite |
+| Validación | Manual en cada ruta | Pydantic v2 (respuesta 422 estructurada) |
+| Manejo de errores | `try/catch` por ruta | Excepciones de dominio con manejadores globales |
+| Autenticación | `jsonwebtoken` + bcrypt | PyJWT + bcrypt |
+| Arquitectura | Rutas y modelos | Routers / Services / Repositories / Models |
+| Tiempo real | Socket.IO (chat) | Fuera del alcance de la práctica 2 |
 
-El **contrato HTTP** (URLs, métodos, formato JSON con `_id`, `createdAt`,
-`nombre`, `precio`, etc.) se conserva intacto. El frontend Svelte 5
-arranca contra el nuevo backend sin tocar ni una línea.
+El **contrato HTTP** (URLs, métodos y formato JSON con `_id`,
+`createdAt`, `nombre`, `precio`, etc.) se conserva intacto. En
+consecuencia, el frontend Svelte 5 funciona contra el nuevo backend
+sin requerir modificación alguna.
 
 ---
 
@@ -138,25 +144,25 @@ arranca contra el nuevo backend sin tocar ni una línea.
 | Frontend | Svelte 5, Vite 6 |
 | Backend | Python 3.10+, FastAPI 0.115, Uvicorn |
 | ORM | SQLAlchemy 2.0 (estilo `Mapped[...]`) |
-| Base de datos | SQLite (por defecto) — sustituible por cualquier dialecto soportado |
-| Validación | Pydantic v2 + Pydantic Settings |
-| Autenticación | JWT (PyJWT) + bcrypt 4.x |
+| Base de datos | SQLite por defecto, sustituible por cualquier dialecto compatible |
+| Validación | Pydantic v2 y Pydantic Settings |
+| Autenticación | JWT (PyJWT) y bcrypt 4.x |
 
 ---
 
 ## Arquitectura y estructura del proyecto
 
-El backend sigue una **arquitectura en capas** estricta. Cada capa
-solo conoce a la inmediatamente inferior. La capa HTTP **nunca** habla
-con SQLAlchemy directamente; siempre pasa por un servicio, que a su vez
-delega en un repositorio.
+El backend sigue una **arquitectura en capas estricta**. Cada capa
+únicamente conoce a la inmediatamente inferior; en particular, la capa
+HTTP no accede directamente a SQLAlchemy, sino que delega siempre en
+un servicio que, a su vez, utiliza el repositorio correspondiente.
 
 ```
 ┌────────────────────────────────────────────────────────┐
 │ Routers (app/api/routers)                              │
-│   - Validan input con Pydantic                         │
-│   - Inyectan CurrentUser / sesión BD vía Depends       │
-│   - Delegan al servicio y serializan la respuesta      │
+│   - Validan la entrada con Pydantic                    │
+│   - Inyectan CurrentUser y la sesión BD vía Depends    │
+│   - Delegan en el servicio y serializan la respuesta   │
 └─────────────────────────┬──────────────────────────────┘
                           │
 ┌─────────────────────────▼──────────────────────────────┐
@@ -185,14 +191,14 @@ Practica2/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py                  # Factoría FastAPI + lifespan
+│   │   ├── main.py                  # Factoría FastAPI y lifespan
 │   │   ├── core/
-│   │   │   ├── config.py            # Settings (Pydantic Settings)
+│   │   │   ├── config.py            # Configuración (Pydantic Settings)
 │   │   │   ├── database.py          # Engine, SessionLocal, get_db, init_db
-│   │   │   ├── security.py          # bcrypt + JWT
-│   │   │   └── exceptions.py        # DomainError + handlers globales
+│   │   │   ├── security.py          # bcrypt y JWT
+│   │   │   └── exceptions.py        # DomainError y manejadores globales
 │   │   ├── models/                  # ORM SQLAlchemy (User, Product, Cart, Order)
-│   │   ├── schemas/                 # Pydantic (entrada/salida)
+│   │   ├── schemas/                 # Pydantic (entrada y salida)
 │   │   ├── repositories/            # Acceso a datos
 │   │   ├── services/                # Lógica de negocio
 │   │   ├── api/
@@ -201,9 +207,9 @@ Practica2/
 │   │   └── seeds/seed_data.py       # Datos iniciales de desarrollo
 │   ├── requirements.txt
 │   ├── .env.example
-│   ├── run.py                       # Entrypoint de desarrollo
+│   ├── run.py                       # Entrada del modo de desarrollo
 │   └── AI_USAGE.md                  # Memoria del uso de IA (entregable)
-├── frontend/                        # Svelte 5 + Vite (sin cambios)
+├── frontend/                        # Svelte 5 + Vite (sin modificaciones)
 └── README.md
 ```
 
@@ -212,109 +218,119 @@ Practica2/
 ## API REST
 
 > Convenciones:
-> - Las rutas marcadas como **Auth** requieren cabecera
+> - Las rutas marcadas como **Auth** requieren la cabecera
 >   `Authorization: Bearer <token>`.
-> - Las rutas **Admin** además exigen que el token corresponda a un
+> - Las rutas **Admin** exigen, además, que el token corresponda a un
 >   usuario con rol `admin`.
-> - Los IDs son cadenas hexadecimales de 32 caracteres (UUID4 sin
->   guiones) y se exponen como `_id` para mantener el contrato anterior.
+> - Los identificadores son cadenas hexadecimales de 32 caracteres
+>   (UUID4 sin guiones) y se exponen como `_id` para mantener el
+>   contrato del backend anterior.
 
 ### Autenticación
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `POST` | `/auth/register` | Registra un usuario (siempre rol `user`) | — |
-| `POST` | `/auth/login` | Inicia sesión y devuelve JWT | — |
-| `GET`  | `/auth/me` | Datos del usuario autenticado | Auth |
-| `PUT`  | `/auth/change-password` | Cambia la contraseña actual | Auth |
+| `POST` | `/auth/register` | Registra un usuario (siempre rol `user`). | — |
+| `POST` | `/auth/login` | Inicia sesión y devuelve un JWT. | — |
+| `GET`  | `/auth/me` | Devuelve los datos del usuario autenticado. | Auth |
+| `PUT`  | `/auth/change-password` | Modifica la contraseña actual. | Auth |
 
 ### Productos
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `GET`    | `/productos` | Lista todos los productos | — |
-| `POST`   | `/productos` | Crea un producto | Admin |
-| `PUT`    | `/productos/{id}` | Edita un producto | Admin |
-| `DELETE` | `/productos/{id}` | Elimina un producto | Admin |
+| `GET`    | `/productos` | Lista todos los productos. | — |
+| `POST`   | `/productos` | Crea un producto. | Admin |
+| `PUT`    | `/productos/{id}` | Edita un producto existente. | Admin |
+| `DELETE` | `/productos/{id}` | Elimina un producto. | Admin |
 
 ### Usuarios
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `GET`    | `/api/users` | Lista de usuarios | Admin |
-| `GET`    | `/api/users/{id}` | Detalle de un usuario | Admin |
-| `PUT`    | `/api/users/{id}/role` | Cambia el rol (no puede ser el propio) | Admin |
-| `DELETE` | `/api/users/{id}` | Elimina (no puede ser el propio) | Admin |
+| `GET`    | `/api/users` | Lista de usuarios. | Admin |
+| `GET`    | `/api/users/{id}` | Detalle de un usuario. | Admin |
+| `PUT`    | `/api/users/{id}/role` | Modifica el rol (un administrador no puede modificar el suyo). | Admin |
+| `DELETE` | `/api/users/{id}` | Elimina un usuario (un administrador no puede eliminarse a sí mismo). | Admin |
 
 ### Carrito
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `GET`    | `/api/cart` | Carrito del usuario actual | Auth |
-| `POST`   | `/api/cart/add` | Añade un producto (cantidad 1–999) | Auth |
-| `PUT`    | `/api/cart/update` | Actualiza la cantidad | Auth |
-| `DELETE` | `/api/cart/remove/{productId}` | Elimina un ítem | Auth |
-| `DELETE` | `/api/cart/clear` | Vacía el carrito | Auth |
+| `GET`    | `/api/cart` | Carrito del usuario autenticado. | Auth |
+| `POST`   | `/api/cart/add` | Añade un producto al carrito (cantidad entre 1 y 999). | Auth |
+| `PUT`    | `/api/cart/update` | Actualiza la cantidad de un ítem. | Auth |
+| `DELETE` | `/api/cart/remove/{productId}` | Elimina un ítem del carrito. | Auth |
+| `DELETE` | `/api/cart/clear` | Vacía el carrito por completo. | Auth |
 
 ### Pedidos
 
 | Método | Endpoint | Descripción | Auth |
 |--------|----------|-------------|------|
-| `GET`    | `/api/orders` | Lista todos los pedidos (`?status=pending`/`completed`) | Admin |
-| `GET`    | `/api/orders/my-orders` | Pedidos del usuario actual | Auth |
-| `GET`    | `/api/orders/{id}` | Detalle (dueño o admin) | Auth |
-| `POST`   | `/api/orders` | Crea un pedido desde el carrito | Auth |
-| `PUT`    | `/api/orders/{id}/status` | Cambia el estado | Admin |
-| `DELETE` | `/api/orders/{id}` | Cancela un pedido pendiente | Auth |
+| `GET`    | `/api/orders` | Lista todos los pedidos (filtrable mediante `?status=pending` o `?status=completed`). | Admin |
+| `GET`    | `/api/orders/my-orders` | Pedidos del usuario autenticado. | Auth |
+| `GET`    | `/api/orders/{id}` | Detalle de un pedido (visible para su propietario o un administrador). | Auth |
+| `POST`   | `/api/orders` | Crea un pedido a partir del contenido del carrito. | Auth |
+| `PUT`    | `/api/orders/{id}/status` | Actualiza el estado de un pedido. | Admin |
+| `DELETE` | `/api/orders/{id}` | Cancela un pedido pendiente. | Auth |
 
 ---
 
 ## Modelo de datos
 
-Todos los modelos viven en `backend/app/models/` y usan SQLAlchemy 2.0
-con anotaciones `Mapped[...]`.
+Todos los modelos se ubican en `backend/app/models/` y emplean
+SQLAlchemy 2.0 con anotaciones `Mapped[...]`.
 
 ### User
-- `id`: string (UUID4 hex, PK)
-- `username`: string, único, ≥ 3 caracteres
-- `password_hash`: bcrypt
-- `role`: `user` | `admin`
-- `created_at` / `updated_at`
+
+- `id`: cadena (UUID4 hex, clave primaria).
+- `username`: cadena, única, longitud mínima de 3 caracteres.
+- `password_hash`: bcrypt.
+- `role`: `user` o `admin`.
+- `created_at` y `updated_at`.
 
 ### Product
-- `id`: string (UUID4 hex, PK)
-- `nombre`: string ≤ 120
-- `precio`: float ≥ 0
-- `descripcion`: text
-- `imagen`: string opcional (URL)
-- `categoria`: `fuegos-artificiales` | `petardos` | `bengalas` | `cohetes` | `otros`
-- `created_at` / `updated_at`
 
-### Cart (+ CartItem)
-- `Cart`: 1-1 con `User`. `total` se calcula como propiedad de instancia.
-- `CartItem`: snapshot desnormalizado del producto en el momento de
-  añadirlo al carrito (`nombre`, `precio`, `imagen`).
+- `id`: cadena (UUID4 hex, clave primaria).
+- `nombre`: cadena de hasta 120 caracteres.
+- `precio`: número en coma flotante, no negativo.
+- `descripcion`: texto.
+- `imagen`: cadena opcional (URL).
+- `categoria`: `fuegos-artificiales`, `petardos`, `bengalas`,
+  `cohetes` u `otros`.
+- `created_at` y `updated_at`.
 
-### Order (+ OrderItem)
-- `Order`: pertenece a un `User`, contiene `total`, `status`
-  (`pending`/`completed`) y `OrderItem[]`.
-- `OrderItem`: snapshot inmutable de la línea de pedido con `subtotal`
-  precalculado.
+### Cart (con CartItem)
 
-> **Desnormalización intencionada**: tanto `CartItem` como `OrderItem`
-> almacenan `nombre`, `precio` e `imagen` del producto. Esto preserva
-> el precio en el momento de la compra y evita joins constantes para
-> mostrar listas.
+- `Cart`: relación uno a uno con `User`. La propiedad `total` se
+  calcula en tiempo de ejecución.
+- `CartItem`: copia desnormalizada de los campos del producto
+  (`nombre`, `precio`, `imagen`) en el momento en que se incorpora al
+  carrito.
+
+### Order (con OrderItem)
+
+- `Order`: pertenece a un `User` y contiene `total`, `status`
+  (`pending` o `completed`) y una colección de `OrderItem`.
+- `OrderItem`: registro inmutable de cada línea del pedido, con su
+  `subtotal` precalculado.
+
+> **Decisión de diseño: desnormalización intencionada.** Tanto
+> `CartItem` como `OrderItem` almacenan `nombre`, `precio` e `imagen`
+> del producto. De esta forma se preserva el precio en el instante de
+> la compra y se evita la necesidad de realizar joins repetidamente
+> al mostrar los listados.
 
 ---
 
-## Validación y errores
+## Validación y manejo de errores
 
-### Validación estricta (Pydantic v2)
+### Validación estricta con Pydantic v2
 
-Cada payload de entrada se valida con un esquema en
-`backend/app/schemas/`. Si los datos no cumplen las reglas, FastAPI
-responde con `422 Unprocessable Entity` y un cuerpo unificado:
+Cada payload de entrada se valida frente al esquema correspondiente
+de `backend/app/schemas/`. Si los datos no cumplen las restricciones,
+FastAPI responde con `422 Unprocessable Entity` y un cuerpo
+homogéneo:
 
 ```json
 {
@@ -333,23 +349,23 @@ responde con `422 Unprocessable Entity` y un cuerpo unificado:
 
 ### Manejador global de excepciones
 
-`backend/app/core/exceptions.py` define una jerarquía de excepciones de
-dominio y registra los siguientes manejadores en FastAPI:
+`backend/app/core/exceptions.py` define una jerarquía de excepciones
+de dominio y registra los siguientes manejadores en FastAPI:
 
-| Excepción capturada | Status HTTP | Origen típico |
-|---------------------|-------------|---------------|
-| `NotFoundError` | 404 | Recurso inexistente (servicios) |
-| `ValidationError` | 422 | Regla de negocio rota |
-| `ConflictError` | 409 | Usuario duplicado, etc. |
-| `AuthenticationError` | 401 | Token ausente/expirado, credenciales inválidas |
-| `AuthorizationError` | 403 | Token válido pero sin permisos |
-| `RequestValidationError` (FastAPI) | 422 | Payload no cumple esquema Pydantic |
-| `IntegrityError` (SQLAlchemy) | 409 | Restricciones UNIQUE/FK |
-| `SQLAlchemyError` | 500 | Otros errores de BD (mensaje genérico en prod) |
-| `Exception` | 500 | Catch-all (mensaje genérico en prod) |
+| Excepción | Código HTTP | Origen habitual |
+|-----------|-------------|-----------------|
+| `NotFoundError` | 404 | Recurso inexistente (capa de servicios). |
+| `ValidationError` | 422 | Regla de negocio incumplida. |
+| `ConflictError` | 409 | Conflicto, por ejemplo un nombre de usuario duplicado. |
+| `AuthenticationError` | 401 | Token ausente, expirado o credenciales incorrectas. |
+| `AuthorizationError` | 403 | Token válido pero sin permisos suficientes. |
+| `RequestValidationError` (FastAPI) | 422 | Payload no conforme al esquema Pydantic. |
+| `IntegrityError` (SQLAlchemy) | 409 | Restricciones de unicidad o de clave foránea. |
+| `SQLAlchemyError` | 500 | Otros errores de base de datos (mensaje genérico en producción). |
+| `Exception` | 500 | Captura final genérica (mensaje genérico en producción). |
 
-La capa HTTP **no usa `try/except`**: simplemente delega y deja que el
-manejador global formatee la respuesta.
+La capa HTTP **no contiene bloques `try`/`except`**: se limita a
+delegar y permite que el manejador global componga la respuesta.
 
 ---
 
@@ -357,68 +373,73 @@ manejador global formatee la respuesta.
 
 | Medida | Implementación |
 |--------|----------------|
-| Hashing de contraseñas | `bcrypt` 4.x con salt aleatorio (10 rondas) |
-| Tokens | JWT HS256 con `iat`/`exp`, sin fallback de secret |
-| Autorización | Dependencias `get_current_user` y `get_current_admin` |
-| Escalada de privilegios | El registro siempre asigna rol `user` |
-| Auto-eliminación / auto-degradación | Bloqueada en `UserService` |
-| CORS | Restringido a `CORS_ORIGINS` |
-| Errores | Mensajes genéricos en producción (`APP_ENV=production`) |
-| Validación | Pydantic v2 rechaza tipos, longitudes y rangos inválidos |
-| Inyección SQL | SQLAlchemy parametriza todas las consultas |
+| Hash de contraseñas | `bcrypt` 4.x con salt aleatorio (10 rondas). |
+| Tokens | JWT HS256 con campos `iat` y `exp`, sin valor por defecto del secreto. |
+| Autorización | Dependencias `get_current_user` y `get_current_admin`. |
+| Escalada de privilegios | El registro público asigna siempre el rol `user`. |
+| Auto-eliminación y auto-degradación | Bloqueadas en `UserService`. |
+| CORS | Restringido a los orígenes definidos en `CORS_ORIGINS`. |
+| Errores | Mensajes genéricos en producción (`APP_ENV=production`). |
+| Validación | Pydantic v2 rechaza tipos, longitudes y rangos inválidos. |
+| Inyección SQL | SQLAlchemy parametriza todas las consultas. |
 
 ---
 
 ## Uso de Inteligencia Artificial
 
-La memoria completa del uso de IA — prompts clave, iteraciones,
-errores/alucinaciones detectados y correcciones manuales — está en
-[`backend/AI_USAGE.md`](backend/AI_USAGE.md).
+La memoria completa del uso de IA —prompts clave, iteraciones,
+errores y alucinaciones detectados y correcciones manuales— se
+encuentra en [`backend/AI_USAGE.md`](backend/AI_USAGE.md).
 
 Resumen ejecutivo:
 
-- Se usó **Cursor + Claude/GPT** como copiloto crítico, no como
-  generador ciego.
-- Se documentan **seis alucinaciones o errores** detectados (passlib
-  obsoleto con bcrypt 4, separación de responsabilidades en routers,
-  SQLAlchemy 1.4 vs 2.0, `@app.on_event` deprecado, parsing de
-  `List[str]` en `pydantic-settings` que crasheaba al arrancar con un
-  `.env` real, y dependencias con `yield from`) y cómo se corrigieron
-  a mano.
-- Se distingue claramente entre lo aportado por la IA (boilerplate,
-  alias Pydantic, primera versión del manejador de errores) y las
-  decisiones de diseño hechas por mí (estructura de carpetas, política
-  de seguridad en login, contrato de IDs, validación login vs
-  registro).
+- Se ha empleado **Cursor con Claude y GPT** como asistente de
+  desarrollo, en ningún caso como mero generador de código.
+- Se documentan **seis errores o alucinaciones** detectados durante
+  el desarrollo: incompatibilidad de `passlib` con `bcrypt` 4.x,
+  defectos en la separación de responsabilidades a nivel de routers,
+  uso de la API de SQLAlchemy 1.4 frente a la 2.0, empleo del
+  decorador `@app.on_event` ya deprecado, error en el parsing de
+  `List[str]` en `pydantic-settings` que provocaba el fallo de
+  arranque con un fichero `.env` real, y una dependencia con
+  `yield from` con firma incorrecta. Para cada caso se justifica la
+  causa raíz y se describe la corrección aplicada manualmente.
+- Se distingue de forma explícita entre las contribuciones de la IA
+  (código repetitivo, alias de Pydantic, primera versión del
+  manejador de excepciones) y las decisiones de diseño tomadas por
+  el autor (estructura de carpetas, política de seguridad en el
+  login, contrato de identificadores y separación de los esquemas de
+  validación entre login y registro).
 
 ---
 
-## Frontend (resumen rápido)
+## Frontend
 
 El frontend es la SPA Svelte 5 desarrollada en la práctica 1, sin
-cambios. Vive en `frontend/` y se conecta al backend Python a través
-del proxy de Vite (puerto 5173 → 3000).
+modificaciones. Se ubica en `frontend/` y se conecta al backend
+Python a través del proxy de Vite (puerto 5173 hacia el 3000).
 
-Páginas principales: `Login`, `Register`, `Products`, `Cart`, `Orders`,
-`Profile`, `AdminPanel`. Usa runes de Svelte 5 (`$state`, `$derived`,
-`$effect`) y un store de auth basado en `localStorage`.
+Páginas principales: `Login`, `Register`, `Products`, `Cart`,
+`Orders`, `Profile` y `AdminPanel`. Hace uso de las *runes* de
+Svelte 5 (`$state`, `$derived` y `$effect`) y de un store de
+autenticación basado en `localStorage`.
 
 ---
 
 ## Endpoints utilizados por el frontend
 
-| Página / acción | Endpoint(s) | Roles |
+| Página o acción | Endpoint(s) | Roles |
 |------------------|-------------|-------|
-| Login / Registro | `POST /auth/login`, `POST /auth/register` | público |
-| Perfil | `GET /auth/me`, `PUT /auth/change-password` | usuario |
-| Catálogo (lectura) | `GET /productos` | público |
-| Catálogo (CRUD) | `POST/PUT/DELETE /productos[/:id]` | admin |
-| Carrito | `GET /api/cart`, `POST /api/cart/add`, `PUT /api/cart/update`, `DELETE /api/cart/remove/:id`, `DELETE /api/cart/clear` | usuario |
-| Mis pedidos | `GET /api/orders/my-orders`, `DELETE /api/orders/:id` | usuario |
-| Panel admin | `GET /api/users`, `PUT /api/users/:id/role`, `DELETE /api/users/:id`, `GET /api/orders`, `PUT /api/orders/:id/status` | admin |
+| Inicio de sesión y registro | `POST /auth/login`, `POST /auth/register` | Público |
+| Perfil | `GET /auth/me`, `PUT /auth/change-password` | Usuario |
+| Catálogo (lectura) | `GET /productos` | Público |
+| Catálogo (CRUD) | `POST`, `PUT`, `DELETE /productos[/:id]` | Administrador |
+| Carrito | `GET /api/cart`, `POST /api/cart/add`, `PUT /api/cart/update`, `DELETE /api/cart/remove/:id`, `DELETE /api/cart/clear` | Usuario |
+| Pedidos propios | `GET /api/orders/my-orders`, `DELETE /api/orders/:id` | Usuario |
+| Panel de administración | `GET /api/users`, `PUT /api/users/:id/role`, `DELETE /api/users/:id`, `GET /api/orders`, `PUT /api/orders/:id/status` | Administrador |
 
 ---
 
 ## Autor
 
-Neco Martínez — Programación Web II — Práctica 2 (FastAPI + Svelte 5)
+Neco Martínez — Programación Web II — Práctica 2 (FastAPI y Svelte 5).
