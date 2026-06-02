@@ -1,0 +1,75 @@
+# ============================================================
+# Python (backend)
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.python-version
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Datos locales / base de datos SQLite
+backend/data/
+*.sqlite
+*.sqlite3
+*.db
+
+# ============================================================
+# Node.js (frontend)
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Builds y artefactos de Vite
+dist/
+.vite/
+*.tsbuildinfo
+
+# ============================================================
+# Variables de entorno y secretos
+# ============================================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ============================================================
+# Sistema operativo / IDE
+# ============================================================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ============================================================
+# Logs y temporales
+# ============================================================
+*.log
+logs/
+tmp/
+.cache/
+
+# ============================================================
+# Documentos auxiliares no versionados
+# ============================================================
+# Enunciado de la práctica (no es código fuente).
+Práctica*.pdf

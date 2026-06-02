@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Datos / base de datos
+data/
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs y testing
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
