@@ -379,10 +379,12 @@ Resumen ejecutivo:
 
 - Se usó **Cursor + Claude/GPT** como copiloto crítico, no como
   generador ciego.
-- Se documentan al menos **cinco alucinaciones o errores** detectados
-  (passlib obsoleto con bcrypt 4, separación de responsabilidades en
-  routers, SQLAlchemy 1.4 vs 2.0, `@app.on_event` deprecado y
-  dependencias con `yield from`) y cómo se corrigieron a mano.
+- Se documentan **seis alucinaciones o errores** detectados (passlib
+  obsoleto con bcrypt 4, separación de responsabilidades en routers,
+  SQLAlchemy 1.4 vs 2.0, `@app.on_event` deprecado, parsing de
+  `List[str]` en `pydantic-settings` que crasheaba al arrancar con un
+  `.env` real, y dependencias con `yield from`) y cómo se corrigieron
+  a mano.
 - Se distingue claramente entre lo aportado por la IA (boilerplate,
   alias Pydantic, primera versión del manejador de errores) y las
   decisiones de diseño hechas por mí (estructura de carpetas, política

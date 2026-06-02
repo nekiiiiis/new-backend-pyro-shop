@@ -9,7 +9,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import List
 
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
+        populate_by_name=True,
     )
 
     # Servidor
@@ -37,12 +38,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     jwt_expires_minutes: int = Field(default=60 * 24)
 
-    # CORS
-    cors_origins: List[str] = Field(
-        default_factory=lambda: [
-            "http://localhost:5173",
-            "http://localhost:3000",
-        ]
+    # CORS — se lee como cadena CSV ("a,b,c") porque pydantic-settings
+    # interpretaría una List[str] como JSON. La propiedad pública
+    # `cors_origins` devuelve la lista ya separada.
+    cors_origins_raw: str = Field(
+        default="http://localhost:5173,http://localhost:3000",
+        alias="CORS_ORIGINS",
     )
 
     # Semillado inicial
@@ -52,12 +53,9 @@ class Settings(BaseSettings):
     seed_user_username: str = Field(default="usuarioPrueba")
     seed_user_password: str = Field(default="123456")
 
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def _split_origins(cls, value: object) -> object:
-        if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
+    @property
+    def cors_origins(self) -> List[str]:
+        return [origin.strip() for origin in self.cors_origins_raw.split(",") if origin.strip()]
 
     @property
     def is_development(self) -> bool:

@@ -249,7 +249,98 @@ ejecución correcta de la fase de apagado.
 
 **Corrección manual:** ver `app/main.py`, función `lifespan`.
 
-### 2.5 Alucinación: tipo de retorno equivocado en dependencia
+### 2.5 Alucinación detectada en ejecución: `List[str]` en pydantic-settings 2.6
+
+**Lo que generó la IA:**
+
+```python
+class Settings(BaseSettings):
+    cors_origins: List[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:5173",
+            "http://localhost:3000",
+        ]
+    )
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def _split_origins(cls, value):
+        if isinstance(value, str):
+            return [o.strip() for o in value.split(",")]
+        return value
+```
+
+**Por qué era incorrecto:**
+
+A primera vista parece razonable: la idea era leer `CORS_ORIGINS=a,b,c`
+del `.env` y dividirlo en una lista. La trampa es que **`pydantic-settings`
+considera cualquier campo `List[X]` como "valor complejo" y le aplica
+`json.loads()` ANTES de pasar el valor al `field_validator`**. Por eso,
+en cuanto el alumno ejecuta:
+
+```bash
+cp .env.example .env
+python run.py
+```
+
+…el arranque crasha con un `JSONDecodeError`:
+
+```
+pydantic_settings.sources.SettingsError: error parsing value for field
+"cors_origins" from source "DotEnvSettingsSource"
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+```
+
+El validador nunca llega a ejecutarse. La IA en ningún momento avisó de
+este detalle de orden de evaluación, que está documentado en pydantic-
+settings ≥ 2.0. Es un caso clásico en el que el código compila, pasa
+todos los imports, e incluso **funciona en tests sin `.env`** (donde se
+usa el `default_factory`) — pero peta en cuanto el profesor copia
+`.env.example` a `.env` para arrancar el proyecto.
+
+La sugerencia inicial de la IA cuando se le pidió arreglarlo fue:
+
+> "Usa `Annotated[List[str], NoDecode]` para que no intente decodificar
+> como JSON."
+
+Suena perfecto y es **otra alucinación**: `NoDecode` existe en
+`pydantic-settings >= 2.7`, pero la versión pineada del proyecto es
+`2.6.1`. Al importar `NoDecode` falla con `ImportError: cannot import
+name 'NoDecode'`. Verifiqué los símbolos exportados con
+`dir(pydantic_settings)` y, efectivamente, no está.
+
+**Cómo se corrigió manualmente:**
+
+Patrón recomendado en la documentación de `pydantic-settings` para
+listas en `.env`: leer la variable como `str` y exponer la lista con
+una propiedad computada.
+
+```python
+class Settings(BaseSettings):
+    cors_origins_raw: str = Field(
+        default="http://localhost:5173,http://localhost:3000",
+        alias="CORS_ORIGINS",
+    )
+
+    @property
+    def cors_origins(self) -> List[str]:
+        return [o.strip() for o in self.cors_origins_raw.split(",") if o.strip()]
+```
+
+Ventajas:
+
+- No depende de versiones futuras de `pydantic-settings`.
+- La API pública (`settings.cors_origins`) sigue siendo una `List[str]`,
+  así que ni `main.py` ni el `CORSMiddleware` se enteran del cambio.
+- El test funcional `python run.py` con un `.env` real ya arranca el
+  servidor y responde `/health` en 200.
+
+**Lección:** las "soluciones plausibles" generadas por la IA pueden
+pasar el linter y aparentar funcionar sin ejecutar el código. Es
+obligatorio probar el arranque del proyecto desde cero (`.env` recién
+copiado, BD vacía) antes de dar nada por bueno.
+
+### 2.7 Alucinación: tipo de retorno equivocado en dependencia
 
 La IA primero escribió la dependencia de sesión así:
 
