@@ -11,7 +11,7 @@
 
 ---
 
-## 🚀 Cómo desplegar / ejecutar (lectura rápida para el profesor)
+## 🚀 Cómo desplegar / ejecutar 
 
 ### Requisitos previos
 
